@@ -203,7 +203,13 @@ int main()
 		// are not interested in the individual sensor readings.
 		unsigned int position = read_line(sensors,IR_EMITTERS_ON);
 
-		if(position < 1000)
+ 		if(position == 0 || position >= 4000)
+		{
+			// We are somewhat close to being centered on the line:
+			// drive straight.
+			set_motors(30,30);
+		}
+		else if(position < 1500)
 		{
 			// We are far to the right of the line: turn left.
 
@@ -211,27 +217,13 @@ int main()
 			// to do a sharp turn to the left.  Note that the maximum
 			// value of either motor speed is 255, so we are driving
 			// it at just about 40% of the max.
-			set_motors(0,100);
+			set_motors(0,20);
 
-			// Just for fun, indicate the direction we are turning on
-			// the LEDs.
-			left_led(1);
-			right_led(0);
-		}
-		else if(position < 3000)
-		{
-			// We are somewhat close to being centered on the line:
-			// drive straight.
-			set_motors(100,100);
-			left_led(1);
-			right_led(1);
 		}
 		else
 		{
 			// We are far to the left of the line: turn right.
-			set_motors(100,0);
-			left_led(0);
-			right_led(1);
+			set_motors(20,0);
 		}
 	}
 
