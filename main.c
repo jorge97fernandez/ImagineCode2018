@@ -146,6 +146,8 @@ int main() {
     unsigned char selected_game_mode;
 
     while (1){
+        print("Main");
+         delay_ms(2000);
         // Seteamos el modo de juego
         selected_game_mode = button_pressed;
 
@@ -189,6 +191,7 @@ GAME_MODE_LOOP_START:
         wait_for_button_release(BUTTON_A | BUTTON_B | BUTTON_C);
 
         if(button_pressed == selected_game_mode){
+            display_message_centred(msg_paused);
             // TODO: switch haciendo el pause del modo adecuado
         }else { 
             // TODO: switch con el stop del modo adecuado
