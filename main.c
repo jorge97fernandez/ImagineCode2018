@@ -181,9 +181,16 @@ void initialize()
 	wait_for_button_release(BUTTON_B);
 	delay_ms(1000);
 
-	// Only first time
-	show_calibration_values();
-	
+	#define AUTO_CALIBRATE 0
+	#if AUTO_CALIBRATE
+		// Only first time
+		show_calibration_values();
+	#else
+		unsigned int* maximum = get_line_sensors_calibrated_maximum_on();
+		*maximum = 2000;
+		unsigned int* minimum = get_line_sensors_calibrated_minimum_on();
+		*minimum = 457;
+	#endif
 
 	clear();
 
