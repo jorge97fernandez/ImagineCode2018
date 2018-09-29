@@ -10,6 +10,7 @@ unsigned long last_time_into;
  * Function executed only first time mode is executed
  */
 void power_mode_setup(){
+    time_reset();
     // Nothing to do
 }
 
@@ -28,7 +29,7 @@ void power_mode_start(){
 void power_mode_resume(){
     last_time_into = get_ms();
     clear();
-    print_long(0);
+    print_long(last_time_into);
 }
 
 /**
@@ -51,7 +52,7 @@ void power_mode_stop(){
  */
 void power_mode_loop(){
     unsigned long diff = (last_time_into - get_ms());
-    if(diff > 200){
+    if(diff > 20){
         last_time_into = get_ms();
         //int bat = read_battery_millivolts();
         clear();
