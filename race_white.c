@@ -14,11 +14,11 @@ void race_white_mode_resume(){
   set_motors(0, 0);
 }
 
-#define WEIGHT_ACTUAL 500
+#define WEIGHT_ACTUAL 1250
 #define WEIGHT_INTEGRAL 1
-#define WEIGHT_DERIVATE 5000
+#define WEIGHT_DERIVATE 1000
 #define GLOBAL_DIVISOR 10000
-#define MAX_SPEED 100
+#define MAX_SPEED 140
 
 /**
  * Main loop of the mode
