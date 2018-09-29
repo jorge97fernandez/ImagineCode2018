@@ -1,40 +1,43 @@
 //
 // Created by abel on 29/09/18.
 //
-
 #include "race_white.h"
+#include <pololu/3pi.h>
 
-/**
- * Function executed only first time mode is executed
- */
-void race_white_mode_setup(){}
+unsigned int sensors[5]; // an array to hold sensor values
+int integral = 0;
+int last_proportional = 0;
+const int max = 100;
+int power_difference, derivative, proportional;
+unsigned int position;
 
-/**
- * Function executed when mode is stopped and relaunch.
- * If on_mode_create is executed, then this will be executed
- */
-void race_white_mode_start(){}
-
-/**
- * Function executed when mode is paused an resume ( When someone press the mode assigned key ).
- * If on_mode_start is executed, then this will be executed
- */
-void race_white_mode_resume(){}
-
-/**
- * Function executed when mode is paused ( When someone press the mode assigned key )
- */
-void race_white_mode_pause(){}
-
-/**
- * Function executed when mode is stopped ( When someone press a different mode assigned key ). Its always be executed after
- * on_mode_pause.
- */
-void race_white_mode_stop(){}
+void race_white_mode_resume(){
+  set_motors(0, 0);
+}
 
 /**
  * Main loop of the mode
  */
-void race_white_mode_loop(){
+void race_white_mode_loop() {
+    // Get the position of the line.  Note that we *must* provide
+    // the "sensors" argument to read_line() here, even though we
+    // are not interested in the individual sensor readings.
+    position = read_line(sensors, IR_EMITTERS_ON);
 
+    if (position >= 0 && position < 2000) proportional = position;
+    else if (position > 2000 && position <= 4000) proportional = position - 4000;
+    else {
+        position = read_line(sensors, IR_EMITTERS_ON);
+        if (position >= 0 && position < 2000) proportional = 2000;
+        else proportional = -2000;
+    }
+    derivative = proportional - last_proportional;
+    integral += proportional;
+    last_proportional = proportional;
+    power_difference = proportional / 20 + integral / 10000 + derivative * 3 / 2;
+
+    if (power_difference > max) power_difference = max;
+    if (power_difference < -max) power_difference = -max;
+    if (power_difference < 0) set_motors(max + power_difference, max);
+    else set_motors(max, max - power_difference);
 }
