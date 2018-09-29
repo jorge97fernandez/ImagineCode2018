@@ -5,6 +5,14 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "ImagineCode", "ImagineCode.cproj", "{9AF1306C-2019-4186-BD46-48CFEB9A3A92}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{240212DE-80D5-4257-A210-F8969F031D07}"
+	ProjectSection(SolutionItems) = preProject
+		race_black.c = race_black.c
+		race_black.h = race_black.h
+		race_white.c = race_white.c
+		race_white.h = race_white.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR

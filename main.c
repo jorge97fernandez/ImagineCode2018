@@ -15,22 +15,38 @@
 // pieces of static data should be stored in program space.
 #include <avr/pgmspace.h>
 
+// Diferent modules
+#include "power.h"
+#include "dance.h"
+#include "race.h"
+
 // Introductory messages.  The "PROGMEM" identifier causes the data to
 // go into program space.
-const char welcome_line1[]
-PROGMEM = " Panteras";
-const char welcome_line2[]
+const char msg_panteras[]
+PROGMEM = "Panteras";
+const char msg_manila[]
 PROGMEM = "Manila";
-const char demo_name_line1[]
-PROGMEM = "Path";
-const char demo_name_line2[]
-PROGMEM = "follower";
+const char msg_select[]
+PROGMEM = "select";
+const char msg_mode[]
+PROGMEM = "mode";
+const char msg_race[]
+PROGMEM = "race";
+const char msg_dance[]
+PROGMEM = "dance";
+const char msg_power[]
+PROGMEM = "power";
+const char msg_paused[]
+PROGMEM = "Paused";
+const char msg_go[]
+PROGMEM = "Go!";
+const char msg_dancing[]
+PROGMEM = "Dancing";
 
-// A couple of simple tunes, stored in program space.
-const char welcome[]
-PROGMEM = ">g32>>c32";
-const char go[]
-PROGMEM = "L16 cdegreg4";
+// BUTTONS FOR MODES
+#define MODE_RACE_BUTTON BUTTON_A
+#define MODE_DANCE_BUTTON BUTTON_B
+#define MODE_POWER_BUTTON BUTTON_C
 
 // Data for generating the characters used in load_custom_characters
 // and display_readings.  By reading levels[] starting at various
@@ -67,124 +83,15 @@ void load_custom_characters() {
     clear(); // the LCD must be cleared for the characters to take effect
 }
 
-// This function displays the sensor readings using a bar graph.
-void display_readings(const unsigned int *calibrated_values) {
-    unsigned char i;
-
-    for (i = 0; i < 5; i++) {
-        // Initialize the array of characters that we will use for the
-        // graph.  Using the space, an extra copy of the one-bar
-        // character, and character 255 (a full black box), we get 10
-        // characters in the array.
-        const char display_characters[10] = {' ', 0, 0, 1, 2, 3, 4, 5, 6, 255};
-
-        // The variable c will have values from 0 to 9, since
-        // calibrated values are in the range of 0 to 1000, and
-        // 1000/101 is 9 with integer math.
-        char c = display_characters[calibrated_values[i] / 101];
-
-        // Display the bar graph character.
-        print_character(c);
-    }
-}
-
-// Show values OF calibration
-void show_calibration_values() {
-    unsigned int counter; // used as a simple timer
-    // Auto-calibration: turn right and left while calibrating the
-    // sensors.
-    for (counter = 0; counter < 80; counter++) {
-        if (counter < 20 || counter >= 60)
-            set_motors(40, -40);
-        else
-            set_motors(-40, 40);
-
-        // This function records a set of sensor readings and keeps
-        // track of the minimum and maximum values encountered.  The
-        // IR_EMITTERS_ON argument means that the IR LEDs will be
-        // turned on during the reading, which is usually what you
-        // want.
-        calibrate_line_sensors(IR_EMITTERS_ON);
-
-        // Since our counter runs to 80, the total delay will be
-        // 80*20 = 1600 ms.
-        delay_ms(20);
-    }
-    set_motors(0, 0);
-
-    // Display maximum
-    unsigned int *maximum = get_line_sensors_calibrated_maximum_on();
-    for (int i = 0; i < 5; i++) {
-        while (!button_is_pressed(BUTTON_B)) {
-            clear();
-            print_long(maximum[i]);
-            lcd_goto_xy(0, 1);
-            delay_ms(100);
-        }
-        wait_for_button_release(BUTTON_B);
-    }
-
-    // Display maximum
-    unsigned int *minimum = get_line_sensors_calibrated_minimum_on();
-    for (int i = 0; i < 5; i++) {
-        while (!button_is_pressed(BUTTON_B)) {
-            clear();
-            print_long(minimum[i]);
-            lcd_goto_xy(0, 1);
-            delay_ms(100);
-        }
-        wait_for_button_release(BUTTON_B);
-    }
-
-    clear();
-    print("Finish!");
-    while (1) {}
-}
-
 // Initializes the 3pi, displays a welcome message, calibrates, and
 // plays the initial music.
 void initialize() {
-    unsigned int sensors[5]; // an array to hold sensor values
-
     // This must be called at the beginning of 3pi code, to set up the
     // sensors.  We use a value of 2000 for the timeout, which
     // corresponds to 2000*0.4 us = 0.8 ms on our 20 MHz processor.
     pololu_3pi_init(2000);
     load_custom_characters(); // load the custom characters
 
-    // Play welcome music and display a message
-    print_from_program_space(welcome_line1);
-    lcd_goto_xy(0, 1);
-    print_from_program_space(welcome_line2);
-    play_from_program_space(welcome);
-    delay_ms(1000);
-
-    clear();
-    print_from_program_space(demo_name_line1);
-    lcd_goto_xy(0, 1);
-    print_from_program_space(demo_name_line2);
-    delay_ms(1000);
-
-    // Display battery voltage and wait for button press
-    while (!button_is_pressed(BUTTON_B)) {
-        int bat = read_battery_millivolts();
-        clear();
-        print_long(bat);
-        print("mV");
-        lcd_goto_xy(0, 1);
-        print("Press B");
-        delay_ms(100);
-    }
-
-    // Always wait for the button to be released so that 3pi doesn't
-    // start moving until your hand is away from it.
-    wait_for_button_release(BUTTON_B);
-
-#define AUTO_CALIBRATE 0
-#if AUTO_CALIBRATE
-    // Only first time
-    show_calibration_values();
-#else
     calibrate_line_sensors(IR_EMITTERS_ON);
     unsigned int *maximum = get_line_sensors_calibrated_maximum_on();
     maximum[0] = 2000;
@@ -200,47 +107,170 @@ void initialize() {
     minimum[3] = 330;
     minimum[4] = 467;
 
-#endif
+    dance_mode_setup();
+    race_mode_setup();
+    power_mode_setup();
+}
 
+/**
+ * Muestra un mensaje de dos lineas en la pantalla
+ */
+void display_message(char *line1, char *line2) {
     clear();
-    print("Go!");
-    delay_ms(500);
+    lcd_goto_xy(0, 0);
+    print_from_program_space(line1);
+    lcd_goto_xy(0, 1);
+    print_from_program_space(line2);
+}
+
+/**
+ * Muestra un mensaje de dos lineas en la pantalla
+ */
+void display_message_centred(char *line1) {
     clear();
+    print_from_program_space(line1);
 }
 
 // This is the main function, where the code starts.  All C programs
 // must have a main() function defined somewhere.
 int main() {
-    unsigned int sensors[5]; // an array to hold sensor values
-
     // set up the 3pi
     initialize();
-	unsigned int position = read_line(sensors, IR_EMITTERS_ON);
-	unsigned int pos_anterior = position;
-	int aceleracion = 10;
-    // This is the "main loop" - it will run forever.
-    while (1) {
-        // Get the position of the line.  Note that we *must* provide
-        // the "sensors" argument to read_line() here, even though we
-        // are not interested in the individual sensor readings.
-        position = read_line(sensors, IR_EMITTERS_ON);
-		if (abs(position-pos_anterior)<500) aceleracion += 0.5;
-		else aceleracion = 10;
-        if (position == 0 || position == 4000) {
-            // We are far to the right of the line: turn left.
 
-            // Set the right motor to 100 and the left motor to zero,
-            // to do a sharp turn to the left.  Note that the maximum
-            // value of either motor speed is 255, so we are driving
-            // it at just about 40% of the max.
-            set_motors(100*(aceleracion/10), 100*(aceleracion/10));
-        } else if (position < 2000) {
-            // We are somewhat close to being centered on the line:
-            // drive straight.
-            set_motors(90*(aceleracion/10), 0);
+    // muestra mensaje "Panteras Manila"
+    display_message(msg_panteras, msg_manila);
+    delay_ms(1000);
+
+    // muestra el mensaje select mode
+    display_message(msg_select, msg_mode);
+    unsigned char button_pressed = wait_for_button(BUTTON_A | BUTTON_B | BUTTON_C);
+
+    // Modulo de juego seleccionado
+    unsigned char selected_game_mode;
+
+    while (1) {
+        // Seteamos el modo de juego
+        selected_game_mode = button_pressed;
+
+        // Segun el modo de juego mostramos cosas diferentes en la pantalla
+        switch (selected_game_mode) {
+            case MODE_RACE_BUTTON:
+                display_message(msg_race, msg_mode);
+                break;
+            case MODE_DANCE_BUTTON:
+                display_message(msg_dance, msg_mode);
+                break;
+            case MODE_POWER_BUTTON:
+                display_message(msg_power, msg_mode);
+                break;
+        }
+
+        // Esperamos hasta la confirmación de modo de juego
+        button_pressed = wait_for_button(BUTTON_A | BUTTON_B | BUTTON_C);
+
+        // Si el boton no es el de confirmación, se cambia de modo de juego
+        if (button_pressed != selected_game_mode) {
+            continue; // Cambiamos de modo de juego
+        }
+
+        // On Start Mode
+        switch (selected_game_mode) {
+            case MODE_RACE_BUTTON:
+                race_mode_start();
+                break;
+            case MODE_DANCE_BUTTON:
+                dance_mode_start();
+                break;
+            case MODE_POWER_BUTTON:
+                power_mode_start();
+                break;
+        }
+
+        GAME_MODE_LOOP_START:
+        // On Resume Mode
+        switch (selected_game_mode) {
+            case MODE_RACE_BUTTON:
+                race_mode_resume();
+                display_message_centred(msg_go);
+                break;
+            case MODE_DANCE_BUTTON:
+                dance_mode_resume();
+                display_message_centred(msg_dancing);
+                break;
+            case MODE_POWER_BUTTON:
+                power_mode_resume();
+                // El power mode ya lleva su propia imagen para el lcd
+                break;
+        }
+
+        // On Main loop
+        // WARNING: If is too slow change switch with while
+        while (!(button_pressed = button_is_pressed(BUTTON_A | BUTTON_B | BUTTON_C))) {
+            switch (selected_game_mode) {
+                case MODE_RACE_BUTTON:
+                    race_mode_loop();
+                    break;
+                case MODE_DANCE_BUTTON:
+                    dance_mode_loop();
+                    break;
+                case MODE_POWER_BUTTON:
+                    power_mode_loop();
+                    break;
+            }
+        }
+        wait_for_button_release(button_pressed);
+
+        // On Pause Mode
+        if (button_pressed == selected_game_mode) {
+            display_message_centred(msg_paused);
+            switch (selected_game_mode) {
+                case MODE_RACE_BUTTON:
+                    race_mode_pause();
+                    break;
+                case MODE_DANCE_BUTTON:
+                    dance_mode_pause();
+                    break;
+                case MODE_POWER_BUTTON:
+                    power_mode_pause();
+                    break;
+            }
         } else {
-            // We are far to the left of the line: turn right.
-            set_motors(0, 90*(aceleracion/10));
+            // On Stop Mode
+            switch (selected_game_mode) {
+                case MODE_RACE_BUTTON:
+                    race_mode_pause();
+                    race_mode_stop();
+                    break;
+                case MODE_DANCE_BUTTON:
+                    dance_mode_pause();
+                    dance_mode_stop();
+                    break;
+                case MODE_POWER_BUTTON:
+                    power_mode_pause();
+                    power_mode_stop();
+                    break;
+            }
+            continue;
+        }
+
+        button_pressed = wait_for_button(BUTTON_A | BUTTON_B | BUTTON_C);
+
+        if (button_pressed != selected_game_mode) {
+            // On Stop Mode
+            switch (selected_game_mode) {
+                case MODE_RACE_BUTTON:
+                    race_mode_stop();
+                    break;
+                case MODE_DANCE_BUTTON:
+                    dance_mode_stop();
+                    break;
+                case MODE_POWER_BUTTON:
+                    power_mode_pause();
+                    break;
+            }
+            continue; // Cambiamos de modo de juego
+        } else {
+            goto GAME_MODE_LOOP_START;
         }
     }
 }
