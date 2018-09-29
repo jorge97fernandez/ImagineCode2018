@@ -141,6 +141,29 @@ unsigned int duration[MELODY_LENGTH] =
                 125, 125, 125, 125, 125, 500
         };
 
+unsigned int current_choreography_step;
+unsigned long last_time_into;
+
+struct choreography_step {
+public:
+  int right_engine;
+  int left_engine;
+  unsigned int duration;
+  choreography_step(int right_engine,int left_engine,unsigned int duration){
+    right_engine = right_engine;
+    left_engine = left_engine;
+    duration = duration;
+  }
+}
+
+// Coreo info: moto
+#define choreography_size 5
+choreography_step choreography[choreography_size] = {
+  choreography_step(50, 50, 1000),
+  choreography_step(-50, -50, 1000),
+  choreography_step(-20, -50, 1000),
+  choreography_step(-50, -20, 1000)
+ }
 unsigned char currentIdx;
 short int count;
 unsigned char old_move;
@@ -194,6 +217,7 @@ void dance_mode_start() {
     currentIdx = 0;
     count = 0;
     old_move = 0;
+    current_choreography_step = 0;
 }
 
 /**
@@ -202,6 +226,7 @@ void dance_mode_start() {
  */
 void dance_mode_resume() {
     set_motors(0, 0);
+    last_time_into = 0;
 }
 
 /**
@@ -227,22 +252,16 @@ void dance_mode_loop() {
     if (currentIdx < MELODY_LENGTH && !is_playing()) {
         // play note at max volume
         play_frequency(note[currentIdx], duration[currentIdx] * 2, 15);
-        count = (count + duration[currentIdx] * 2) % 6500;
-        dance(count, &old_move);
-        // optional LCD feedback (for fun)
-        lcd_goto_xy(0, 1);                           // go to start of the second LCD line
-        //if(note[currentIdx] != 255) // display blank for rests
-        //print_long(note[currentIdx]);  // print integer value of the current note
-        //print("  ");                            // overwrite any left over characters
         currentIdx++;
     }
-//If the song is finished, restart the song.
+    //If the song is finished, restart the song.
     else if (currentIdx == MELODY_LENGTH) {
         currentIdx = 0;
     }
 
-    // Insert some other useful code here...
-    // the melody will play normally while the rest of your code executes
-    // as long as it executes quickly enough to keep from inserting delays
-    // between the notes.
+    if (get_ms() - last_time_into > choreography[current_choreography_step].duration) {
+        last_time_into = get_ms();
+        current_choreography_step = (current_choreography_step + 1)%choreography_size;
+        set_motors(choreography[current_choreography_step].right_engine, choreography[current_choreography_step].left_engine);
+      }
 }
