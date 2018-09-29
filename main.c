@@ -192,6 +192,48 @@ void initialize()
 		unsigned int* minimum = get_line_sensors_calibrated_minimum_on();
 		unsigned int minimum_int = 457;
 		*minimum = minimum_int;
+
+				// Display maximum
+	unsigned int* maximum = get_line_sensors_calibrated_maximum_on();
+	while(!button_is_pressed(BUTTON_B))
+	{
+		clear();
+		print_long(*maximum);
+		lcd_goto_xy(0,1);
+		delay_ms(100);
+	}
+	wait_for_button_release(BUTTON_B);
+
+			// Display maximum
+	unsigned int* minimum = get_line_sensors_calibrated_minimum_on();
+	while(!button_is_pressed(BUTTON_B))
+	{
+		clear();
+		print_long(*minimum);
+		lcd_goto_xy(0,1);
+		delay_ms(100);
+	}
+		wait_for_button_release(BUTTON_B);
+
+		// Display calibrated values as a bar graph.
+	while(!button_is_pressed(BUTTON_B))
+	{
+		// Read the sensor values and get the position measurement.
+		unsigned int position = read_line(sensors,IR_EMITTERS_ON);
+
+		// Display the position measurement, which will go from 0
+		// (when the leftmost sensor is over the line) to 4000 (when
+		// the rightmost sensor is over the line) on the 3pi, along
+		// with a bar graph of the sensor readings.  This allows you
+		// to make sure the robot is ready to go.
+		clear();
+		print_long(position);
+		lcd_goto_xy(0,1);
+		display_readings(sensors);
+
+		delay_ms(100);
+	}
+wait_for_button_release(BUTTON_B);
 	#endif
 
 	clear();
