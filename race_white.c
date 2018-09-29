@@ -38,7 +38,7 @@ void race_white_mode_loop() {
     derivative = proportional - last_proportional;
     integral += proportional;
     last_proportional = proportional;
-    power_difference = proportional *1/8 + integral / 10000 + derivative * 25/10;
+    power_difference = proportional /8 + integral / 1048 + derivative * 2 + derivative / 2 ;
 
     if (power_difference > max) power_difference = max;
     if (power_difference < -max) power_difference = -max;
