@@ -115,7 +115,7 @@ void initialize() {
 /**
  * Muestra un mensaje de dos lineas en la pantalla
  */
-void display_message(char* line1, char* line2){
+void display_message(char *line1, char *line2) {
     clear();
     lcd_goto_xy(0, 0);
     print_from_program_space(line1);
@@ -126,7 +126,7 @@ void display_message(char* line1, char* line2){
 /**
  * Muestra un mensaje de dos lineas en la pantalla
  */
-void display_message_centred(char* line1){
+void display_message_centred(char *line1) {
     clear();
     print_from_program_space(line1);
 }
@@ -148,12 +148,12 @@ int main() {
     // Modulo de juego seleccionado
     unsigned char selected_game_mode;
 
-    while (1){
+    while (1) {
         // Seteamos el modo de juego
         selected_game_mode = button_pressed;
 
         // Segun el modo de juego mostramos cosas diferentes en la pantalla
-        switch(selected_game_mode){
+        switch (selected_game_mode) {
             case MODE_RACE_BUTTON:
                 display_message(msg_race, msg_mode);
                 break;
@@ -169,12 +169,12 @@ int main() {
         button_pressed = wait_for_button(BUTTON_A | BUTTON_B | BUTTON_C);
 
         // Si el boton no es el de confirmación, se cambia de modo de juego
-        if(button_pressed != selected_game_mode){
+        if (button_pressed != selected_game_mode) {
             continue; // Cambiamos de modo de juego
         }
 
         // On Start Mode
-        switch(selected_game_mode){
+        switch (selected_game_mode) {
             case MODE_RACE_BUTTON:
                 race_mode_start();
                 break;
@@ -186,9 +186,9 @@ int main() {
                 break;
         }
 
-GAME_MODE_LOOP_START:
+        GAME_MODE_LOOP_START:
         // On Resume Mode
-        switch(selected_game_mode){
+        switch (selected_game_mode) {
             case MODE_RACE_BUTTON:
                 race_mode_resume();
                 display_message_centred(msg_go);
@@ -199,14 +199,14 @@ GAME_MODE_LOOP_START:
                 break;
             case MODE_POWER_BUTTON:
                 power_mode_resume();
-                 // El power mode ya lleva su propia imagen para el lcd
+                // El power mode ya lleva su propia imagen para el lcd
                 break;
         }
 
         // On Main loop
         // WARNING: If is too slow change switch with while
-        while(!(button_pressed = button_is_pressed(BUTTON_A | BUTTON_B | BUTTON_C))){
-            switch(selected_game_mode){
+        while (!(button_pressed = button_is_pressed(BUTTON_A | BUTTON_B | BUTTON_C))) {
+            switch (selected_game_mode) {
                 case MODE_RACE_BUTTON:
                     race_mode_loop();
                     break;
@@ -221,9 +221,9 @@ GAME_MODE_LOOP_START:
         wait_for_button_release(button_pressed);
 
         // On Pause Mode
-        if(button_pressed == selected_game_mode){
+        if (button_pressed == selected_game_mode) {
             display_message_centred(msg_paused);
-            switch(selected_game_mode){
+            switch (selected_game_mode) {
                 case MODE_RACE_BUTTON:
                     race_mode_pause();
                     break;
@@ -234,9 +234,9 @@ GAME_MODE_LOOP_START:
                     power_mode_pause();
                     break;
             }
-        }else { 
+        } else {
             // On Stop Mode
-            switch(selected_game_mode){
+            switch (selected_game_mode) {
                 case MODE_RACE_BUTTON:
                     race_mode_stop();
                     break;
@@ -248,13 +248,13 @@ GAME_MODE_LOOP_START:
                     break;
             }
             continue;
-       }
+        }
 
         button_pressed = wait_for_button(BUTTON_A | BUTTON_B | BUTTON_C);
 
-        if(button_pressed != selected_game_mode){
+        if (button_pressed != selected_game_mode) {
             // On Stop Mode
-            switch(selected_game_mode){
+            switch (selected_game_mode) {
                 case MODE_RACE_BUTTON:
                     race_mode_stop();
                     break;
@@ -266,8 +266,7 @@ GAME_MODE_LOOP_START:
                     break;
             }
             continue; // Cambiamos de modo de juego
-        }
-        else{
+        } else {
             goto GAME_MODE_LOOP_START;
         }
     }
