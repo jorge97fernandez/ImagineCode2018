@@ -176,48 +176,6 @@ void initialize()
 	}
 	wait_for_button_release(BUTTON_B);
 
-
-		// Display calibrated values as a bar graph.
-	while(!button_is_pressed(BUTTON_B))
-	{
-		// Read the sensor values and get the position measurement.
-		unsigned int position = read_line(sensors,IR_EMITTERS_ON_AND_OFF);
-
-		// Display the position measurement, which will go from 0
-		// (when the leftmost sensor is over the line) to 4000 (when
-		// the rightmost sensor is over the line) on the 3pi, along
-		// with a bar graph of the sensor readings.  This allows you
-		// to make sure the robot is ready to go.
-		clear();
-		print_long(position);
-		lcd_goto_xy(0,1);
-		display_readings(sensors);
-
-		delay_ms(100);
-	}
-	wait_for_button_release(BUTTON_B);
-
-
-		// Display calibrated values as a bar graph.
-	while(!button_is_pressed(BUTTON_B))
-	{
-		// Read the sensor values and get the position measurement.
-		unsigned int position = read_line(sensors,IR_EMITTERS_OFF);
-
-		// Display the position measurement, which will go from 0
-		// (when the leftmost sensor is over the line) to 4000 (when
-		// the rightmost sensor is over the line) on the 3pi, along
-		// with a bar graph of the sensor readings.  This allows you
-		// to make sure the robot is ready to go.
-		clear();
-		print_long(position);
-		lcd_goto_xy(0,1);
-		display_readings(sensors);
-
-		delay_ms(100);
-	}
-	wait_for_button_release(BUTTON_B);
-
 	clear();
 
 	print("Go!");		
@@ -242,11 +200,11 @@ int main()
 		// Get the position of the line.  Note that we *must* provide
 		// the "sensors" argument to read_line() here, even though we
 		// are not interested in the individual sensor readings.
-		unsigned int position = read_line(sensors,IR_EMITTERS_OFF);
+		unsigned int position = read_line(sensors,IR_EMITTERS_ON);
 
 
 
-		if(position <= 500 || position >= 2500)
+		if(position == 0 || position == 4000)
 		{
 			// We are far to the right of the line: turn left.
 
@@ -254,18 +212,18 @@ int main()
 			// to do a sharp turn to the left.  Note that the maximum
 			// value of either motor speed is 255, so we are driving
 			// it at just about 40% of the max.
-			set_motors(30,30);
+			set_motors(40,40);
 		}
 		else if(position < 1500)
 		{
 			// We are somewhat close to being centered on the line:
 			// drive straight.
-			set_motors(20,0);
+			set_motors(30,0);
 		}
 		else
 		{
 			// We are far to the left of the line: turn right.
-			set_motors(0,20);
+			set_motors(0,30);
 		}
 	}
 
