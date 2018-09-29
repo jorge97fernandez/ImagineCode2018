@@ -91,6 +91,7 @@ void display_readings(const unsigned int *calibrated_values)
 
 // Show values OF calibration
 void show_calibration_values(){
+		unsigned int counter; // used as a simple timer
 		// Auto-calibration: turn right and left while calibrating the
 	// sensors.
 	for(counter=0;counter<80;counter++)
@@ -138,7 +139,6 @@ void show_calibration_values(){
 // plays the initial music.
 void initialize()
 {
-	unsigned int counter; // used as a simple timer
 	unsigned int sensors[5]; // an array to hold sensor values
 
 	// This must be called at the beginning of 3pi code, to set up the
