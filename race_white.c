@@ -7,7 +7,7 @@
 static unsigned int sensors[5]; // an array to hold sensor values
 static int integral = 0;
 static int last_proportional = 0;
-static const int max = 100;
+static const int max = 140;
 static int power_difference, derivative, proportional;
 static unsigned int position;
 
@@ -34,7 +34,7 @@ void race_white_mode_loop() {
     derivative = proportional - last_proportional;
     integral += proportional;
     last_proportional = proportional;
-    power_difference = proportional / 20 + integral / 10000 + derivative * 3 / 2;
+    power_difference = proportional *1/8 + integral / 10000 + derivative * 25/10;
 
     if (power_difference > max) power_difference = max;
     if (power_difference < -max) power_difference = -max;
