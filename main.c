@@ -194,22 +194,22 @@ void initialize()
 		*minimum = minimum_int;
 
 				// Display maximum
-	unsigned int* maximum = get_line_sensors_calibrated_maximum_on();
+	unsigned int* maximum2 = get_line_sensors_calibrated_maximum_on();
 	while(!button_is_pressed(BUTTON_B))
 	{
 		clear();
-		print_long(*maximum);
+		print_long(*maximum2);
 		lcd_goto_xy(0,1);
 		delay_ms(100);
 	}
 	wait_for_button_release(BUTTON_B);
 
 			// Display maximum
-	unsigned int* minimum = get_line_sensors_calibrated_minimum_on();
+	unsigned int* minimum2 = get_line_sensors_calibrated_minimum_on();
 	while(!button_is_pressed(BUTTON_B))
 	{
 		clear();
-		print_long(*minimum);
+		print_long(*minimum2);
 		lcd_goto_xy(0,1);
 		delay_ms(100);
 	}
