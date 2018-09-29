@@ -148,8 +148,6 @@ int main() {
     unsigned char selected_game_mode;
 
     while (1){
-        display_message_centred(msg_main);
-        delay_ms(2000);
         // Seteamos el modo de juego
         selected_game_mode = button_pressed;
 
@@ -190,7 +188,7 @@ GAME_MODE_LOOP_START:
         while(!(button_pressed = button_is_pressed(BUTTON_A | BUTTON_B | BUTTON_C))){
 
         }
-        wait_for_button_release(BUTTON_A | BUTTON_B | BUTTON_C);
+        wait_for_button_release(button_pressed);
 
         if(button_pressed == selected_game_mode){
             display_message_centred(msg_paused);
