@@ -1,101 +1,196 @@
 #include <pololu/orangutan.h>
-/*
- * buzzer1: for the Orangutan LV/SV-xx8
- *
- * Uses the OrangutanBuzzer library to play a series of notes on the
- * Orangutan's buzzer.  It also uses the OrangutanLCD library to
- * display the notes its playing, and it uses the OrangutanPushbuttons
- * library to allow the user to stop/reset the melody with the top
- * pushbutton.
- *
- * http://www.pololu.com/docs/0J20/6.d
- * http://www.pololu.com
- * http://forum.pololu.com
+/* 
+ * This code will follow a black path between two black lines, using a
+ * very simple algorithm.  It demonstrates auto-calibration and use of
+ * the 3pi IR sensors, motor control, bar graphs using custom
+ * characters, and music playback, making it a good starting point for
+ * developing your own more competitive line follower.
  */
 
-#define MELODY_LENGTH 95
-
-// These arrays take up a total of 285 bytes of RAM (out of a 1k limit)
-unsigned char note[MELODY_LENGTH] = 
+// This function displays the sensor readings using a bar graph.
+void display_readings(const unsigned int *calibrated_values)
 {
-  E(5), SILENT_NOTE, E(5), SILENT_NOTE, E(5), SILENT_NOTE, C(5), E(5),
-  G(5), SILENT_NOTE, G(4), SILENT_NOTE,
+	unsigned char i;
 
-  C(5), G(4), SILENT_NOTE, E(4), A(4), B(4), B_FLAT(4), A(4), G(4),
-  E(5), G(5), A(5), F(5), G(5), SILENT_NOTE, E(5), C(5), D(5), B(4),
+	for(i=0;i<5;i++) {
+		// Initialize the array of characters that we will use for the
+		// graph.  Using the space, an extra copy of the one-bar
+		// character, and character 255 (a full black box), we get 10
+		// characters in the array.
+		const char display_characters[10] = {' ',0,0,1,2,3,4,5,6,255};
 
-  C(5), G(4), SILENT_NOTE, E(4), A(4), B(4), B_FLAT(4), A(4), G(4),
-  E(5), G(5), A(5), F(5), G(5), SILENT_NOTE, E(5), C(5), D(5), B(4),
+		// The variable c will have values from 0 to 9, since
+		// calibrated values are in the range of 0 to 1000, and
+		// 1000/101 is 9 with integer math.
+		char c = display_characters[calibrated_values[i]/101];
 
-  SILENT_NOTE, G(5), F_SHARP(5), F(5), D_SHARP(5), E(5), SILENT_NOTE,
-  G_SHARP(4), A(4), C(5), SILENT_NOTE, A(4), C(5), D(5),
+		// Display the bar graph character.
+		print_character(c);
+	}
+} 
 
-  SILENT_NOTE, G(5), F_SHARP(5), F(5), D_SHARP(5), E(5), SILENT_NOTE,
-  C(6), SILENT_NOTE, C(6), SILENT_NOTE, C(6),
+// Show values OF calibration
+void show_calibration_values(){
+	unsigned int counter; // used as a simple timer
+	// Auto-calibration: turn right and left while calibrating the
+	// sensors.
+	for(counter=0;counter<80;counter++)
+	{
+		if(counter < 20 || counter >= 60)
+			set_motors(40,-40);
+		else
+			set_motors(-40,40);
 
-  SILENT_NOTE, G(5), F_SHARP(5), F(5), D_SHARP(5), E(5), SILENT_NOTE,
-  G_SHARP(4), A(4), C(5), SILENT_NOTE, A(4), C(5), D(5),
+		// This function records a set of sensor readings and keeps
+		// track of the minimum and maximum values encountered.  The
+		// IR_EMITTERS_ON argument means that the IR LEDs will be
+		// turned on during the reading, which is usually what you
+		// want.
+		calibrate_line_sensors(IR_EMITTERS_ON);
 
-  SILENT_NOTE, E_FLAT(5), SILENT_NOTE, D(5), C(5)
-};
+		// Since our counter runs to 80, the total delay will be
+		// 80*20 = 1600 ms.
+		delay_ms(20);
+	}
+	set_motors(0,0);
 
-unsigned int duration[MELODY_LENGTH] =
-{
-  100, 25, 125, 125, 125, 125, 125, 250, 250, 250, 250, 250,
+		// Display maximum
+	unsigned int* maximum = get_line_sensors_calibrated_maximum_on();
+	for(int i = 0 ; i< 5; i++){
+	while(!button_is_pressed(BUTTON_B))
+	{
+		clear();
+		print_long(maximum[i]);
+		lcd_goto_xy(0,1);
+		delay_ms(100);
+	}
+	wait_for_button_release(BUTTON_B);
+	}
 
-  375, 125, 250, 375, 250, 250, 125, 250, 167, 167, 167, 250, 125, 125,
-  125, 250, 125, 125, 375,
 
-  375, 125, 250, 375, 250, 250, 125, 250, 167, 167, 167, 250, 125, 125,
-  125, 250, 125, 125, 375,
+			// Display maximum
+	unsigned int* minimum = get_line_sensors_calibrated_minimum_on();
+		for(int i = 0 ; i< 5; i++){
+		while(!button_is_pressed(BUTTON_B))
+	{
+		clear();
+		print_long(minimum[i]);
+		lcd_goto_xy(0,1);
+		delay_ms(100);
+	}
+		wait_for_button_release(BUTTON_B);
+	}
 
-  250, 125, 125, 125, 250, 125, 125, 125, 125, 125, 125, 125, 125, 125,
+	clear();
+	print("Finish!");
+	while(1){}
+	
+}
+	unsigned int sensors[5]; // an array to hold sensor values
 
-  250, 125, 125, 125, 250, 125, 125, 200, 50, 100, 25, 500,
+	// This must be called at the beginning of 3pi code, to set up the
+	// sensors.  We use a value of 2000 for the timeout, which
+	// corresponds to 2000*0.4 us = 0.8 ms on our 20 MHz processor.
+	pololu_3pi_init(2000);
+	load_custom_characters(); // load the custom characters
+	
+	// Play welcome music and display a message
+	print_from_program_space(welcome_line1);
+	lcd_goto_xy(0,1);
+	print_from_program_space(welcome_line2);
+	play_from_program_space(welcome);
+	delay_ms(1000);
 
-  250, 125, 125, 125, 250, 125, 125, 125, 125, 125, 125, 125, 125, 125,
+	clear();
+	print_from_program_space(demo_name_line1);
+	lcd_goto_xy(0,1);
+	print_from_program_space(demo_name_line2);
+	delay_ms(1000);
 
-  250, 250, 125, 375, 500
-};
+	// Display battery voltage and wait for button press
+	while(!button_is_pressed(BUTTON_B))
+	{
+		int bat = read_battery_millivolts();
 
-unsigned char currentIdx;
+		clear();
+		print_long(bat);
+		print("mV");
+		lcd_goto_xy(0,1);
+		print("Press B");
+
+		delay_ms(100);
+	}
+
+	// Always wait for the button to be released so that 3pi doesn't
+	// start moving until your hand is away from it.
+	wait_for_button_release(BUTTON_B);
+
+	#define AUTO_CALIBRATE 0
+	#if AUTO_CALIBRATE
+		// Only first time
+		show_calibration_values();
+	#else
+	    calibrate_line_sensors(IR_EMITTERS_ON);
+		unsigned int* maximum = get_line_sensors_calibrated_maximum_on();
+		maximum[0]=2000;
+		maximum[1]=1896;
+		maximum[2]=1801;
+		maximum[3]=2000;
+		maximum[4]=2000;
+	
+		unsigned int* minimum = get_line_sensors_calibrated_minimum_on();
+		minimum[0]=421;
+		minimum[1]=310;
+		minimum[2]=268;
+		minimum[3]=330;
+		minimum[4]=467;
+
+	#endif
+
+	clear();
+
+	print("Go!");	
+
+	delay_ms(1000);	
+
+	clear();
+}
 
 int main()                    // run once, when the sketch starts
 {
-  currentIdx = 0;
-  print("Music!");
+	unsigned int sensors[5]; // an array to hold sensor values
 
-  while(1)                     // run over and over again
-  {
-    // if we haven't finished playing the song and 
-    // the buzzer is ready for the next note, play the next note
-    if (currentIdx < MELODY_LENGTH && !is_playing())
-    {
-      // play note at max volume
-      play_note(note[currentIdx], duration[currentIdx], 15);
-      
-      // optional LCD feedback (for fun)
-      lcd_goto_xy(0, 1);                           // go to start of the second LCD line
-	  if(note[currentIdx] != 255) // display blank for rests
-        print_long(note[currentIdx]);  // print integer value of the current note
-      print("  ");                            // overwrite any left over characters
-      currentIdx++;
-    }
+	// set up the 3pi
+	initialize();
 
-    // Insert some other useful code here...
-    // the melody will play normally while the rest of your code executes
-    // as long as it executes quickly enough to keep from inserting delays
-    // between the notes.
-  
-    // For example, let the top user pushbutton function as a stop/reset melody button
-    if (button_is_pressed(TOP_BUTTON))
-    {
-      stop_playing(); // silence the buzzer
-      if (currentIdx < MELODY_LENGTH)
-        currentIdx = MELODY_LENGTH;        // terminate the melody
-      else
-        currentIdx = 0;                    // restart the melody
-      wait_for_button_release(TOP_BUTTON);  // wait here for the button to be released
-    }
+	// This is the "main loop" - it will run forever.
+	while(1)
+	{
+		// Get the position of the line.  Note that we *must* provide
+		// the "sensors" argument to read_line() here, even though we
+		// are not interested in the individual sensor readings.
+		unsigned int position = read_line(sensors,IR_EMITTERS_ON);
+
+		if(position == 0 || position == 4000)
+		{
+			// We are far to the right of the line: turn left.
+
+			// Set the right motor to 100 and the left motor to zero,
+			// to do a sharp turn to the left.  Note that the maximum
+			// value of either motor speed is 255, so we are driving
+			// it at just about 40% of the max.
+			set_motors(40,40);
+		}
+		else if(position < 2000)
+		{
+			// We are somewhat close to being centered on the line:
+			// drive straight.
+			set_motors(50,0);
+		}
+		else
+		{
+			// We are far to the left of the line: turn right.
+			set_motors(0,50);
+		}
   }
 }
