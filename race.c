@@ -3,6 +3,7 @@
 //
 
 #include "race.h"
+#include "race_white.h"
 
 /**
  * Function executed only first time mode is executed
