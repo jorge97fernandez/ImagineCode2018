@@ -204,7 +204,7 @@ int main()
 		print_unsigned_long(position);
 
 
-		if(position == 0 || position >= 4000)
+		if(position <= 500 || position >= 2500)
 		{
 			// We are far to the right of the line: turn left.
 
