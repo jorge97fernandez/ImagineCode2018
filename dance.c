@@ -144,27 +144,14 @@ unsigned int duration[MELODY_LENGTH] =
 unsigned int current_choreography_step;
 unsigned long last_time_into;
 
-struct choreography_step {
-  int right_engine;
-  int left_engine;
-  unsigned int duration;
-}
-choreography_step choreography_step_construct(int right_engine,int left_engine,unsigned int duration){
-  choreography_step r;
-  r.right_engine = right_engine;
-  r.left_engine = left_engine;
-  r.duration = duration;
-  return r;
-}
-
 // Coreo info: moto
 #define choreography_size 5
-choreography_step choreography[choreography_size] = {
-  choreography_step_construct(50, 50, 1000),
-  choreography_step_construct(-50, -50, 1000),
-  choreography_step_construct(-20, -50, 1000),
-  choreography_step_construct(-50, -20, 1000)
- }
+int choreography[choreography_size][4] = {
+  {50, 50, 1000},
+  {-50, -50, 1000},
+  {-20, -50, 1000},
+  {-50, -20, 1000}
+ };
 unsigned char currentIdx;
 short int count;
 unsigned char old_move;
@@ -260,9 +247,9 @@ void dance_mode_loop() {
         currentIdx = 0;
     }
 
-    if (get_ms() - last_time_into > choreography[current_choreography_step].duration) {
+    if (get_ms() - last_time_into > choreography[current_choreography_step][2]) {
         last_time_into = get_ms();
         current_choreography_step = (current_choreography_step + 1)%choreography_size;
-        set_motors(choreography[current_choreography_step].right_engine, choreography[current_choreography_step].left_engine);
+        set_motors(choreography[current_choreography_step][0], choreography[current_choreography_step][1]);
       }
 }
