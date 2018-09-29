@@ -50,11 +50,12 @@ void power_mode_stop(){
  * Main loop of the mode
  */
 void power_mode_loop(){
-    if(last_time_into - get_ms() > 2000){
+    unsigned long diff = (last_time_into - get_ms());
+    if(diff > 200){
         last_time_into = get_ms();
         //int bat = read_battery_millivolts();
         clear();
-        print_long(last_time_into);
+        print_long(555);
         //print("mV");
     }
 }
