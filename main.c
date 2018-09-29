@@ -1,7 +1,6 @@
 /*
- * 3pi-linefollower - demo code for the Pololu 3pi Robot
  * 
- * This code will follow a black line on a white background, using a
+ * This code will follow a black path between two black lines, using a
  * very simple algorithm.  It demonstrates auto-calibration and use of
  * the 3pi IR sensors, motor control, bar graphs using custom
  * characters, and music playback, making it a good starting point for
@@ -161,7 +160,7 @@ void initialize()
 	while(!button_is_pressed(BUTTON_B))
 	{
 		// Read the sensor values and get the position measurement.
-		unsigned int position = read_line_white(sensors,IR_EMITTERS_ON);
+		unsigned int position = read_line(sensors,IR_EMITTERS_ON);
 
 		// Display the position measurement, which will go from 0
 		// (when the leftmost sensor is over the line) to 4000 (when
@@ -201,11 +200,11 @@ int main()
 		// Get the position of the line.  Note that we *must* provide
 		// the "sensors" argument to read_line() here, even though we
 		// are not interested in the individual sensor readings.
-		unsigned int position = read_line_white(sensors,IR_EMITTERS_ON);
+		unsigned int position = read_line(sensors,IR_EMITTERS_ON);
 		print_unsigned_long(position);
 
 
-		if(position < 1000)
+		if(position == 0 || position >= 4000)
 		{
 			// We are far to the right of the line: turn left.
 
@@ -213,27 +212,18 @@ int main()
 			// to do a sharp turn to the left.  Note that the maximum
 			// value of either motor speed is 255, so we are driving
 			// it at just about 40% of the max.
-			set_motors(0,20);
-
-			// Just for fun, indicate the direction we are turning on
-			// the LEDs.
-			left_led(1);
-			right_led(0);
+			set_motors(30,30);
 		}
-		else if(position < 3000)
+		else if(position < 1500)
 		{
 			// We are somewhat close to being centered on the line:
 			// drive straight.
-			set_motors(30,30);
-			left_led(1);
-			right_led(1);
+			set_motors(20,0);
 		}
 		else
 		{
 			// We are far to the left of the line: turn right.
-			set_motors(20,0);
-			left_led(0);
-			right_led(1);
+			set_motors(0,20);
 		}
 	}
 
