@@ -5,9 +5,9 @@
 #include "dance.h"
 
 /**
- * Function executed only first time mode is executed
+ * Function executed only one time to setup before any one
  */
-void dance_mode_create(){}
+void dance_mode_setup(){}
 
 /**
  * Function executed when mode is stopped and relaunch.

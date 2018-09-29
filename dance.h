@@ -8,7 +8,7 @@
 /**
  * Function executed only first time mode is executed
  */
-void dance_mode_create();
+void dance_mode_setup();
 
 /**
  * Function executed when mode is stopped and relaunch.

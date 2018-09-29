@@ -8,7 +8,7 @@
 /**
  * Function executed only first time mode is executed
  */
-void power_mode_create();
+void power_mode_setup();
 
 /**
  * Function executed when mode is stopped and relaunch.

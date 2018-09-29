@@ -7,7 +7,7 @@
 /**
  * Function executed only first time mode is executed
  */
-void race_mode_create(){}
+void race_mode_setup(){}
 
 /**
  * Function executed when mode is stopped and relaunch.
