@@ -185,6 +185,7 @@ void initialize()
 		// Only first time
 		show_calibration_values();
 	#else
+	    calibrate_line_sensors(IR_EMITTERS_ON);
 		unsigned int* maximum = get_line_sensors_calibrated_maximum_on();
 		unsigned int maximum_int = 2000;
 		*maximum = maximum_int;
