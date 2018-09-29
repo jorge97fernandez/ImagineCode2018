@@ -214,16 +214,16 @@ int main()
 			// it at just about 40% of the max.
 			set_motors(40,40);
 		}
-		else if(position < 1500)
+		else if(position < 2000)
 		{
 			// We are somewhat close to being centered on the line:
 			// drive straight.
-			set_motors(30,0);
+			set_motors(50,0);
 		}
 		else
 		{
 			// We are far to the left of the line: turn right.
-			set_motors(0,30);
+			set_motors(0,50);
 		}
 	}
 
