@@ -3,6 +3,7 @@
 //
 
 #include "power.h"
+#include <pololu/3pi.h>
 
 unsigned long last_time_into;
 
@@ -27,9 +28,7 @@ void power_mode_start(){
  * If on_mode_start is executed, then this will be executed
  */
 void power_mode_resume(){
-    last_time_into = get_ms();
-    clear();
-    print_long(last_time_into);
+    last_time_into = 0;
 }
 
 /**
@@ -51,12 +50,11 @@ void power_mode_stop(){
  * Main loop of the mode
  */
 void power_mode_loop(){
-    unsigned long diff = (last_time_into - get_ms());
-    if(diff > 20){
+    if(get_ms() - last_time_into > 200){
         last_time_into = get_ms();
-        //int bat = read_battery_millivolts();
+        int bat = read_battery_millivolts();
         clear();
-        print_long(555);
-        //print("mV");
+        print_long(bat);
+        print("mV");
     }
 }

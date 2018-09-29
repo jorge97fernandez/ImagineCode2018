@@ -199,7 +199,7 @@ GAME_MODE_LOOP_START:
                 break;
             case MODE_POWER_BUTTON:
                 power_mode_resume();
-                clear(); // El power mode ya lleva su propia imagen para el lcd
+                 // El power mode ya lleva su propia imagen para el lcd
                 break;
         }
 
