@@ -15,6 +15,11 @@
 // pieces of static data should be stored in program space.
 #include <avr/pgmspace.h>
 
+// Diferent modules
+#include "power.h"
+#include "dance.h"
+#include "race.h"
+
 // Introductory messages.  The "PROGMEM" identifier causes the data to
 // go into program space.
 const char msg_panteras[]
@@ -32,24 +37,16 @@ PROGMEM = "dance";
 const char msg_power[]
 PROGMEM = "power";
 const char msg_paused[]
-PROGMEM = "paused";
+PROGMEM = "Paused";
 const char msg_go[]
 PROGMEM = "Go!";
 const char msg_dancing[]
 PROGMEM = "Dancing";
-const char msg_main[]
-PROGMEM = "Main";
 
 // BUTTONS FOR MODES
 #define MODE_RACE_BUTTON BUTTON_A
 #define MODE_DANCE_BUTTON BUTTON_B
 #define MODE_POWER_BUTTON BUTTON_C
-
-// A couple of simple tunes, stored in program space.
-const char welcome[]
-PROGMEM = ">g32>>c32";
-const char go[]
-PROGMEM = "L16 cdegreg4";
 
 // Data for generating the characters used in load_custom_characters
 // and display_readings.  By reading levels[] starting at various
@@ -109,6 +106,10 @@ void initialize() {
     minimum[2] = 268;
     minimum[3] = 330;
     minimum[4] = 467;
+
+    dance_mode_setup();
+    race_mode_setup();
+    power_mode_setup();
 }
 
 /**
@@ -140,7 +141,7 @@ int main() {
     display_message(msg_panteras, msg_manila);
     delay_ms(1000);
 
-    //
+    // muestra el mensaje select mode
     display_message(msg_select, msg_mode);
     unsigned char button_pressed = wait_for_button(BUTTON_A | BUTTON_B | BUTTON_C);
 
@@ -151,6 +152,7 @@ int main() {
         // Seteamos el modo de juego
         selected_game_mode = button_pressed;
 
+        // Segun el modo de juego mostramos cosas diferentes en la pantalla
         switch(selected_game_mode){
             case MODE_RACE_BUTTON:
                 display_message(msg_race, msg_mode);
@@ -163,51 +165,110 @@ int main() {
                 break;
         }
 
+        // Esperamos hasta la confirmación de modo de juego
         button_pressed = wait_for_button(BUTTON_A | BUTTON_B | BUTTON_C);
 
+        // Si el boton no es el de confirmación, se cambia de modo de juego
         if(button_pressed != selected_game_mode){
             continue; // Cambiamos de modo de juego
         }
 
-        // TODO: Aqui se pondria el onstart y on resume en un switch aparte
-
-GAME_MODE_LOOP_START:
+        // On Start Mode
         switch(selected_game_mode){
             case MODE_RACE_BUTTON:
+                race_mode_start();
+                break;
+            case MODE_DANCE_BUTTON:
+                dance_mode_start();
+                break;
+            case MODE_POWER_BUTTON:
+                power_mode_start();
+                break;
+        }
+
+GAME_MODE_LOOP_START:
+        // On Resume Mode
+        switch(selected_game_mode){
+            case MODE_RACE_BUTTON:
+                race_mode_resume();
                 display_message_centred(msg_go);
                 break;
             case MODE_DANCE_BUTTON:
+                dance_mode_resume();
                 display_message_centred(msg_dancing);
                 break;
             case MODE_POWER_BUTTON:
-                display_message_centred(msg_power);
+                power_mode_resume();
+                clear(); // El power mode ya lleva su propia imagen para el lcd
                 break;
         }
 
-        // TODO: Aqui se pondria el main loop
+        // On Main loop
+        // WARNING: If is too slow change switch with while
         while(!(button_pressed = button_is_pressed(BUTTON_A | BUTTON_B | BUTTON_C))){
-
+            switch(selected_game_mode){
+                case MODE_RACE_BUTTON:
+                    race_mode_loop();
+                    break;
+                case MODE_DANCE_BUTTON:
+                    dance_mode_loop();
+                    break;
+                case MODE_POWER_BUTTON:
+                    power_mode_loop();
+                    break;
+            }
         }
         wait_for_button_release(button_pressed);
 
+        // On Pause Mode
         if(button_pressed == selected_game_mode){
             display_message_centred(msg_paused);
-            // TODO: switch haciendo el pause del modo adecuado
+            switch(selected_game_mode){
+                case MODE_RACE_BUTTON:
+                    race_mode_pause();
+                    break;
+                case MODE_DANCE_BUTTON:
+                    dance_mode_pause();
+                    break;
+                case MODE_POWER_BUTTON:
+                    power_mode_pause();
+                    break;
+            }
         }else { 
-            // TODO: switch con el stop del modo adecuado
+            // On Stop Mode
+            switch(selected_game_mode){
+                case MODE_RACE_BUTTON:
+                    race_mode_stop();
+                    break;
+                case MODE_DANCE_BUTTON:
+                    dance_mode_stop();
+                    break;
+                case MODE_POWER_BUTTON:
+                    power_mode_pause();
+                    break;
+            }
             continue;
        }
 
         button_pressed = wait_for_button(BUTTON_A | BUTTON_B | BUTTON_C);
 
         if(button_pressed != selected_game_mode){
-             // TODO: switch con el stop del modo adecuado
+            // On Stop Mode
+            switch(selected_game_mode){
+                case MODE_RACE_BUTTON:
+                    race_mode_stop();
+                    break;
+                case MODE_DANCE_BUTTON:
+                    dance_mode_stop();
+                    break;
+                case MODE_POWER_BUTTON:
+                    power_mode_pause();
+                    break;
+            }
             continue; // Cambiamos de modo de juego
         }
         else{
-            // TODO: se hace onresume del modo adecuado
             goto GAME_MODE_LOOP_START;
         }
     }
-
 }
