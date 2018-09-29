@@ -4,8 +4,7 @@
 
 #include "power.h"
 
-unsigned long loop_counter;
-unsigned int internal_debug_counter;
+unsigned long last_time_into;
 
 /**
  * Function executed only first time mode is executed
@@ -27,8 +26,7 @@ void power_mode_start(){
  * If on_mode_start is executed, then this will be executed
  */
 void power_mode_resume(){
-    loop_counter = 0;
-    internal_debug_counter = 0;
+    last_time_into = get_ms();
 }
 
 /**
@@ -50,15 +48,12 @@ void power_mode_stop(){
  * Main loop of the mode
  */
 void power_mode_loop(){
-    if(loop_counter > 2000000000){
-        loop_counter = 0;
-        internal_debug_counter = internal_debug_counter + 1;
+    if(last_time_into - get_ms() > 200){
+        last_time_into = get_ms();
         //int bat = read_battery_millivolts();
         clear();
         lcd_goto_xy(0, 0);
-        print_long(internal_debug_counter);
+        print_long(last_time_into);
         //print("mV");
-    } else{
-        loop_counter = loop_counter + 1;
     }
 }
