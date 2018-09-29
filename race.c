@@ -35,4 +35,6 @@ void race_mode_stop(){}
 /**
  * Main loop of the mode
  */
-void race_mode_loop(){}
+void race_mode_loop(){
+
+}
