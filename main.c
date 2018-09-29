@@ -39,9 +39,9 @@ const char msg_dancing[]
 PROGMEM = "Dancing";
 
 // BUTTONS FOR MODES
-#define MODE_RACE_BUTTON BUTTON_A;
-#define MODE_DANCE_BUTTON BUTTON_B;
-#define MODE_POWER_BUTTON BUTTON_C;
+#define MODE_RACE_BUTTON BUTTON_A
+#define MODE_DANCE_BUTTON BUTTON_B
+#define MODE_POWER_BUTTON BUTTON_C
 
 // A couple of simple tunes, stored in program space.
 const char welcome[]
@@ -115,9 +115,9 @@ void initialize() {
 void display_message(char* line1, char* line2){
     clear();
     lcd_goto_xy(0, 0);
-    print_from_program_space(welcome_line1);
+    print_from_program_space(line1);
     lcd_goto_xy(0, 1);
-    print_from_program_space(welcome_line2);
+    print_from_program_space(line2);
 }
 
 /**
