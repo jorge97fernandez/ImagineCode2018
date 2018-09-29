@@ -211,7 +211,7 @@ int main()
 			// to do a sharp turn to the left.  Note that the maximum
 			// value of either motor speed is 255, so we are driving
 			// it at just about 40% of the max.
-			set_motors(0,30);
+			set_motors(0,20);
 
 			// Just for fun, indicate the direction we are turning on
 			// the LEDs.
@@ -222,14 +222,14 @@ int main()
 		{
 			// We are somewhat close to being centered on the line:
 			// drive straight.
-			set_motors(30,0);
+			set_motors(30,30);
 			left_led(1);
 			right_led(1);
 		}
 		else
 		{
 			// We are far to the left of the line: turn right.
-			set_motors(100,0);
+			set_motors(20,0);
 			left_led(0);
 			right_led(1);
 		}
