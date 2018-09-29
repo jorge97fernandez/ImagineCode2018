@@ -116,25 +116,31 @@ void show_calibration_values(){
 
 		// Display maximum
 	unsigned int* maximum = get_line_sensors_calibrated_maximum_on();
+	for(int i = 0 ; i< 5; i++){
 	while(!button_is_pressed(BUTTON_B))
 	{
 		clear();
-		print_long(*maximum);
+		print_long(maximum[i]);
 		lcd_goto_xy(0,1);
 		delay_ms(100);
 	}
 	wait_for_button_release(BUTTON_B);
+	}
+
 
 			// Display maximum
 	unsigned int* minimum = get_line_sensors_calibrated_minimum_on();
-	while(!button_is_pressed(BUTTON_B))
+		for(int i = 0 ; i< 5; i++){
+		while(!button_is_pressed(BUTTON_B))
 	{
 		clear();
-		print_long(*minimum);
+		print_long(minimum[i]);
 		lcd_goto_xy(0,1);
 		delay_ms(100);
 	}
 		wait_for_button_release(BUTTON_B);
+	}
+	
 }
 
 // Initializes the 3pi, displays a welcome message, calibrates, and
@@ -180,10 +186,15 @@ void initialize()
 	// start moving until your hand is away from it.
 	wait_for_button_release(BUTTON_B);
 
-	#define AUTO_CALIBRATE 0
+	#define AUTO_CALIBRATE 1
 	#if AUTO_CALIBRATE
 		// Only first time
 		show_calibration_values();
+
+		clear();
+
+	print("Finish!");
+	while(1){}
 	#else
 	    calibrate_line_sensors(IR_EMITTERS_ON);
 		unsigned int* maximum = get_line_sensors_calibrated_maximum_on();
