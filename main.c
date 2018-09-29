@@ -91,8 +91,8 @@ void display_readings(const unsigned int *calibrated_values)
 
 // Show values OF calibration
 void show_calibration_values(){
-		unsigned int counter; // used as a simple timer
-		// Auto-calibration: turn right and left while calibrating the
+	unsigned int counter; // used as a simple timer
+	// Auto-calibration: turn right and left while calibrating the
 	// sensors.
 	for(counter=0;counter<80;counter++)
 	{
@@ -186,9 +186,11 @@ void initialize()
 		show_calibration_values();
 	#else
 		unsigned int* maximum = get_line_sensors_calibrated_maximum_on();
-		*maximum = 2000;
+		unsigned int maximum_int = 2000;
+		*maximum = maximum_int;
 		unsigned int* minimum = get_line_sensors_calibrated_minimum_on();
-		*minimum = 457;
+		unsigned int minimum_int = 457;
+		*minimum = minimum_int;
 	#endif
 
 	clear();
@@ -196,6 +198,8 @@ void initialize()
 	print("Go!");	
 
 	delay_ms(1000);	
+
+	clear();
 }
 
 // This is the main function, where the code starts.  All C programs
@@ -236,12 +240,6 @@ int main()
 			// We are far to the left of the line: turn right.
 			set_motors(0,50);
 		}
-
-		clear();
-
-	print("PASS!");	
-
-	delay_ms(1000);
 	}
 
 	// This part of the code is never reached.  A robot should
