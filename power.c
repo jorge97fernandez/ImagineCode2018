@@ -4,7 +4,7 @@
 
 #include "power.h"
 
-unsigned int loop_counter;
+unsigned long loop_counter;
 unsigned int internal_debug_counter;
 
 /**
@@ -50,7 +50,7 @@ void power_mode_stop(){
  * Main loop of the mode
  */
 void power_mode_loop(){
-    if(loop_counter > 1000){
+    if(loop_counter > 100000){
         loop_counter = 0;
         ++internal_debug_counter;
         //int bat = read_battery_millivolts();
