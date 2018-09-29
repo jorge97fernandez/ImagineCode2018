@@ -50,15 +50,15 @@ void power_mode_stop(){
  * Main loop of the mode
  */
 void power_mode_loop(){
-    if(loop_counter > 100000){
+    if(loop_counter > 2000000000){
         loop_counter = 0;
-        ++internal_debug_counter;
+        internal_debug_counter = internal_debug_counter + 1;
         //int bat = read_battery_millivolts();
         clear();
         lcd_goto_xy(0, 0);
         print_long(internal_debug_counter);
         //print("mV");
     } else{
-        ++loop_counter;
+        loop_counter = loop_counter + 1;
     }
 }
