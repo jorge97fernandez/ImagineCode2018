@@ -39,7 +39,7 @@ void race_white_mode_loop() {
     derivative = proportional - last_proportional;
     integral += proportional;
     last_proportional = proportional;
-    power_difference = (int)((long)((long) proportional * WEIGHT_ACTUAL)  + (long) integral * WEIGHT_INTEGRAL + (long) derivative * WEIGHT_DERIVATE) / 10000);
+    power_difference = (int)(((long) proportional * WEIGHT_ACTUAL  + (long) integral * WEIGHT_INTEGRAL + (long) derivative * WEIGHT_DERIVATE) / 10000);
 
     if (power_difference > MAX_SPEED) power_difference = MAX_SPEED;
     if (power_difference < -MAX_SPEED) power_difference = -MAX_SPEED;
