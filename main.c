@@ -243,7 +243,7 @@ int main()
 		// the "sensors" argument to read_line() here, even though we
 		// are not interested in the individual sensor readings.
 		unsigned int position = read_line(sensors,IR_EMITTERS_OFF);
-		print_unsigned_int(position);
+
 
 
 		if(position <= 500 || position >= 2500)
