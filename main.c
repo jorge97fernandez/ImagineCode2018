@@ -1,71 +1,11 @@
-/*
- * 
+#include <pololu/orangutan.h>
+/* 
  * This code will follow a black path between two black lines, using a
  * very simple algorithm.  It demonstrates auto-calibration and use of
  * the 3pi IR sensors, motor control, bar graphs using custom
  * characters, and music playback, making it a good starting point for
  * developing your own more competitive line follower.
- *
- * http://www.pololu.com/docs/0J21
- * http://www.pololu.com
- * http://forum.pololu.com
- *
  */
-
-// The 3pi include file must be at the beginning of any program that
-// uses the Pololu AVR library and 3pi.
-#include <pololu/3pi.h>
-
-// This include file allows data to be stored in program space.  The
-// ATmega168 has 16k of program space compared to 1k of RAM, so large
-// pieces of static data should be stored in program space.
-#include <avr/pgmspace.h>
-
-// Introductory messages.  The "PROGMEM" identifier causes the data to
-// go into program space.
-const char welcome_line1[] PROGMEM = " Pololu";
-const char welcome_line2[] PROGMEM = "3\xf7 Robot";
-const char demo_name_line1[] PROGMEM = "Line";
-const char demo_name_line2[] PROGMEM = "follower";
-
-// A couple of simple tunes, stored in program space.
-const char welcome[] PROGMEM = ">g32>>c32";
-const char go[] PROGMEM = "L16 cdegreg4";
-
-// Data for generating the characters used in load_custom_characters
-// and display_readings.  By reading levels[] starting at various
-// offsets, we can generate all of the 7 extra characters needed for a
-// bargraph.  This is also stored in program space.
-const char levels[] PROGMEM = {
-	0b00000,
-	0b00000,
-	0b00000,
-	0b00000,
-	0b00000,
-	0b00000,
-	0b00000,
-	0b11111,
-	0b11111,
-	0b11111,
-	0b11111,
-	0b11111,
-	0b11111,
-	0b11111
-};
-
-// This function loads custom characters into the LCD.  Up to 8
-// characters can be loaded; we use them for 7 levels of a bar graph.
-void load_custom_characters()
-{
-	lcd_load_custom_character(levels+0,0); // no offset, e.g. one bar
-	lcd_load_custom_character(levels+1,1); // two bars
-	lcd_load_custom_character(levels+2,2); // etc...
-	lcd_load_custom_character(levels+3,3);
-	lcd_load_custom_character(levels+4,4);
-	lcd_load_custom_character(levels+5,5);
-	lcd_load_custom_character(levels+6,6);
-	clear(); // the LCD must be cleared for the characters to take effect
-}
 
 // This function displays the sensor readings using a bar graph.
 void display_readings(const unsigned int *calibrated_values)
@@ -146,11 +86,6 @@ void show_calibration_values(){
 	while(1){}
 	
 }
-
-// Initializes the 3pi, displays a welcome message, calibrates, and
-// plays the initial music.
-void initialize()
-{
 	unsigned int sensors[5]; // an array to hold sensor values
 
 	// This must be called at the beginning of 3pi code, to set up the
@@ -221,9 +156,7 @@ void initialize()
 	clear();
 }
 
-// This is the main function, where the code starts.  All C programs
-// must have a main() function defined somewhere.
-int main()
+int main()                    // run once, when the sketch starts
 {
 	unsigned int sensors[5]; // an array to hold sensor values
 
@@ -259,20 +192,5 @@ int main()
 			// We are far to the left of the line: turn right.
 			set_motors(0,50);
 		}
-	}
-
-	// This part of the code is never reached.  A robot should
-	// never reach the end of its program, or unpredictable behavior
-	// will result as random code starts getting executed.  If you
-	// really want to stop all actions at some point, set your motors
-	// to 0,0 and run the following command to loop forever:
-	//
-	// while(1);
+  }
 }
-
-// Local Variables: **
-// mode: C **
-// c-basic-offset: 4 **
-// tab-width: 4 **
-// indent-tabs-mode: t **
-// end: **
