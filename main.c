@@ -179,7 +179,6 @@ void initialize()
 	// Always wait for the button to be released so that 3pi doesn't
 	// start moving until your hand is away from it.
 	wait_for_button_release(BUTTON_B);
-	delay_ms(1000);
 
 	#define AUTO_CALIBRATE 0
 	#if AUTO_CALIBRATE
@@ -194,11 +193,9 @@ void initialize()
 
 	clear();
 
-	print("Go!");		
+	print("Go!");	
 
-	// Play music and wait for it to finish before we start driving.
-	play_from_program_space(go);
-	while(is_playing());
+	delay_ms(1000);	
 }
 
 // This is the main function, where the code starts.  All C programs
@@ -217,8 +214,6 @@ int main()
 		// the "sensors" argument to read_line() here, even though we
 		// are not interested in the individual sensor readings.
 		unsigned int position = read_line(sensors,IR_EMITTERS_ON);
-
-
 
 		if(position == 0 || position == 4000)
 		{
@@ -241,6 +236,12 @@ int main()
 			// We are far to the left of the line: turn right.
 			set_motors(0,50);
 		}
+
+		clear();
+
+	print("PASS!");	
+
+	delay_ms(1000);
 	}
 
 	// This part of the code is never reached.  A robot should
