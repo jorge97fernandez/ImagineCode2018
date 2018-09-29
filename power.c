@@ -27,6 +27,9 @@ void power_mode_start(){
  */
 void power_mode_resume(){
     last_time_into = get_ms();
+    clear();
+    lcd_goto_xy(0, 0);
+    print_long(last_time_into);
 }
 
 /**
