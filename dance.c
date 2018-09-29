@@ -145,24 +145,25 @@ unsigned int current_choreography_step;
 unsigned long last_time_into;
 
 struct choreography_step {
-public:
   int right_engine;
   int left_engine;
   unsigned int duration;
-  choreography_step(int right_engine,int left_engine,unsigned int duration){
-    right_engine = right_engine;
-    left_engine = left_engine;
-    duration = duration;
-  }
+}
+choreography_step choreography_step_construct(int right_engine,int left_engine,unsigned int duration){
+  choreography_step r;
+  r.right_engine = right_engine;
+  r.left_engine = left_engine;
+  r.duration = duration;
+  return r;
 }
 
 // Coreo info: moto
 #define choreography_size 5
 choreography_step choreography[choreography_size] = {
-  choreography_step(50, 50, 1000),
-  choreography_step(-50, -50, 1000),
-  choreography_step(-20, -50, 1000),
-  choreography_step(-50, -20, 1000)
+  choreography_step_construct(50, 50, 1000),
+  choreography_step_construct(-50, -50, 1000),
+  choreography_step_construct(-20, -50, 1000),
+  choreography_step_construct(-50, -20, 1000)
  }
 unsigned char currentIdx;
 short int count;
