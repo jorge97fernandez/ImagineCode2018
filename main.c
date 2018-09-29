@@ -238,13 +238,16 @@ int main() {
             // On Stop Mode
             switch (selected_game_mode) {
                 case MODE_RACE_BUTTON:
+                    race_mode_pause();
                     race_mode_stop();
                     break;
                 case MODE_DANCE_BUTTON:
+                    dance_mode_pause();
                     dance_mode_stop();
                     break;
                 case MODE_POWER_BUTTON:
                     power_mode_pause();
+                    power_mode_stop();
                     break;
             }
             continue;

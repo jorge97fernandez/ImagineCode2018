@@ -30,8 +30,11 @@
 #define NOTE_A5  880
 #define NOTE_B5  988
 
+/*
+* Music that sounds on background
+*/
 // These arrays take up a total of 285 bytes of RAM (out of a 1k limit)
-unsigned int note[MELODY_LENGTH] =
+const unsigned int note[MELODY_LENGTH] =
         {
                 NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0,
                 NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0,
@@ -86,7 +89,7 @@ unsigned int note[MELODY_LENGTH] =
                 NOTE_B4, NOTE_C5, 0, NOTE_B4, 0, NOTE_A4
         };
 
-unsigned int duration[MELODY_LENGTH] =
+const unsigned int duration[MELODY_LENGTH] =
         {
                 125, 125, 250, 125, 125,
                 125, 125, 250, 125, 125,
@@ -141,54 +144,22 @@ unsigned int duration[MELODY_LENGTH] =
                 125, 125, 125, 125, 125, 500
         };
 
+/*
+* Choreography that our bug dance
+*/
+#define choreography_size 6
+int choreography[choreography_size][choreography_size] = {
+        {40,  40,  1000},
+        {20, 50, 500},
+        {-20, 20, 700},
+        {20, -20, 700},
+        {-20, -50, 500},
+        {-40, -40,  1000}
+};
+
 unsigned int current_choreography_step;
 unsigned long last_time_into;
-
-// Coreo info: moto
-#define choreography_size 5
-int choreography[choreography_size][4] = {
-  {50, 50, 1000},
-  {-50, -50, 1000},
-  {-20, -50, 1000},
-  {-50, -20, 1000}
- };
 unsigned char currentIdx;
-short int count;
-unsigned char old_move;
-
-void dance(short int count, unsigned char *old_move) {
-    if (count >= 6000 && *old_move == 5) {
-        print("Mov_6");
-        set_motors(0, 0);
-        set_motors(-50, -50);
-        *old_move = 0;
-    } else if (count >= 5000 && *old_move == 4) {
-        print("Mov_5");
-        set_motors(0, 0);
-        set_motors(-20, -50);
-        *old_move = 5;
-    } else if (count >= 4000 && *old_move == 3) {
-        print("Mov_4");
-        set_motors(0, 0);
-        set_motors(20, 50);
-        *old_move = 4;
-    } else if (count >= 3000 && *old_move == 2) {
-        print("Mov_3");
-        set_motors(0, 0);
-        set_motors(-50, -20);
-        *old_move = 3;
-    } else if (count >= 2000 && *old_move == 1) {
-        print("Mov_2");
-        set_motors(0, 0);
-        set_motors(50, 20);
-        *old_move = 2;
-    } else if (count >= 1000 && *old_move == 0) {
-        print("Mov_1");
-        set_motors(0, 0);
-        set_motors(50, 50);
-        *old_move = 1;
-    }
-}
 
 /**
  * Function executed only one time to setup before any one
@@ -203,9 +174,7 @@ void dance_mode_setup() {
  */
 void dance_mode_start() {
     currentIdx = 0;
-    count = 0;
-    old_move = 0;
-    current_choreography_step = 0;
+    current_choreography_step = 5;
 }
 
 /**
@@ -242,14 +211,14 @@ void dance_mode_loop() {
         play_frequency(note[currentIdx], duration[currentIdx] * 2, 15);
         currentIdx++;
     }
-    //If the song is finished, restart the song.
+        //If the song is finished, restart the song.
     else if (currentIdx == MELODY_LENGTH) {
         currentIdx = 0;
     }
 
     if (get_ms() - last_time_into > choreography[current_choreography_step][2]) {
         last_time_into = get_ms();
-        current_choreography_step = (current_choreography_step + 1)%choreography_size;
+        current_choreography_step = (current_choreography_step + 1) % choreography_size;
         set_motors(choreography[current_choreography_step][0], choreography[current_choreography_step][1]);
-      }
+    }
 }
