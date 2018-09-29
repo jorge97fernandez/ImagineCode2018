@@ -87,6 +87,51 @@ void display_readings(const unsigned int *calibrated_values)
 		// Display the bar graph character.
 		print_character(c);
 	}
+} 
+
+// Show values OF calibration
+void show_calibration_values(){
+		// Auto-calibration: turn right and left while calibrating the
+	// sensors.
+	for(counter=0;counter<80;counter++)
+	{
+		if(counter < 20 || counter >= 60)
+			set_motors(40,-40);
+		else
+			set_motors(-40,40);
+
+		// This function records a set of sensor readings and keeps
+		// track of the minimum and maximum values encountered.  The
+		// IR_EMITTERS_ON argument means that the IR LEDs will be
+		// turned on during the reading, which is usually what you
+		// want.
+		calibrate_line_sensors(IR_EMITTERS_ON);
+
+		// Since our counter runs to 80, the total delay will be
+		// 80*20 = 1600 ms.
+		delay_ms(20);
+	}
+	set_motors(0,0);
+
+		// Display maximum
+	unsigned int* maximum = get_line_sensors_calibrated_maximum_on();
+	while(!button_is_pressed(BUTTON_B))
+	{
+		clear();
+		print_long(*maximum);
+		lcd_goto_xy(0,1);
+		delay_ms(100);
+	}
+
+			// Display maximum
+	unsigned int* minimum = get_line_sensors_calibrated_minimum_on();
+	while(!button_is_pressed(BUTTON_B))
+	{
+		clear();
+		print_long(*minimum);
+		lcd_goto_xy(0,1);
+		delay_ms(100);
+	}
 }
 
 // Initializes the 3pi, displays a welcome message, calibrates, and
@@ -134,47 +179,9 @@ void initialize()
 	wait_for_button_release(BUTTON_B);
 	delay_ms(1000);
 
-	// Auto-calibration: turn right and left while calibrating the
-	// sensors.
-	for(counter=0;counter<80;counter++)
-	{
-		if(counter < 20 || counter >= 60)
-			set_motors(40,-40);
-		else
-			set_motors(-40,40);
-
-		// This function records a set of sensor readings and keeps
-		// track of the minimum and maximum values encountered.  The
-		// IR_EMITTERS_ON argument means that the IR LEDs will be
-		// turned on during the reading, which is usually what you
-		// want.
-		calibrate_line_sensors(IR_EMITTERS_ON);
-
-		// Since our counter runs to 80, the total delay will be
-		// 80*20 = 1600 ms.
-		delay_ms(20);
-	}
-	set_motors(0,0);
-
-	// Display calibrated values as a bar graph.
-	while(!button_is_pressed(BUTTON_B))
-	{
-		// Read the sensor values and get the position measurement.
-		unsigned int position = read_line(sensors,IR_EMITTERS_ON);
-
-		// Display the position measurement, which will go from 0
-		// (when the leftmost sensor is over the line) to 4000 (when
-		// the rightmost sensor is over the line) on the 3pi, along
-		// with a bar graph of the sensor readings.  This allows you
-		// to make sure the robot is ready to go.
-		clear();
-		print_long(position);
-		lcd_goto_xy(0,1);
-		display_readings(sensors);
-
-		delay_ms(100);
-	}
-	wait_for_button_release(BUTTON_B);
+	// Only first time
+	show_calibration_values();
+	
 
 	clear();
 
