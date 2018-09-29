@@ -161,7 +161,7 @@ void initialize()
 	while(!button_is_pressed(BUTTON_B))
 	{
 		// Read the sensor values and get the position measurement.
-		unsigned int position = read_line(sensors,IR_EMITTERS_ON);
+		unsigned int position = read_line_white(sensors,IR_EMITTERS_ON);
 
 		// Display the position measurement, which will go from 0
 		// (when the leftmost sensor is over the line) to 4000 (when
@@ -202,6 +202,8 @@ int main()
 		// the "sensors" argument to read_line() here, even though we
 		// are not interested in the individual sensor readings.
 		unsigned int position = read_line_white(sensors,IR_EMITTERS_ON);
+		print_unsigned_long(position);
+
 
 		if(position < 1000)
 		{
