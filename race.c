@@ -4,6 +4,9 @@
 
 #include "race.h"
 #include "race_white.h"
+#include "race_black.h"
+
+char race_mode_selected = 0;
 
 /**
  * Function executed only first time mode is executed
@@ -17,6 +20,13 @@ void race_mode_setup(){
  */
 void race_mode_start(){
   set_motors(0, 0);
+  unsigned int sensors[5];
+  position = read_line(sensors, IR_EMITTERS_ON);
+  if(position== 0 || position == 4000){
+    race_mode_selected = 1;
+  }else{
+    race_mode_selected = 0;
+  }
 }
 
 /**
@@ -24,7 +34,11 @@ void race_mode_start(){
  * If on_mode_start is executed, then this will be executed
  */
 void race_mode_resume(){
+  if(race_mode_selected){
   race_white_mode_resume();
+}else{
+  race_black_mode_resume();
+}
 }
 
 /**
@@ -46,5 +60,10 @@ void race_mode_stop(){
  * Main loop of the mode
  */
 void race_mode_loop(){
-  race_white_mode_loop();
+  if(race_mode_selected){
+      race_white_mode_loop();
+  }else{
+    race_black_mode_loop();
+  }
+
 }
