@@ -5,12 +5,12 @@
 #include "race_black.h"
 #include <pololu/3pi.h>
 
-unsigned int sensors[5]; // an array to hold sensor values
-int integral = 0;
-int last_proportional = 0;
-const int max = 100;
-int power_difference, derivative, proportional;
-unsigned int position;
+static unsigned int sensors[5]; // an array to hold sensor values
+static int integral = 0;
+static int last_proportional = 0;
+static const int max = 100;
+static int power_difference, derivative, proportional;
+static unsigned int position;
 
 /**
  * Function executed when mode is paused an resume ( When someone press the mode assigned key ).
