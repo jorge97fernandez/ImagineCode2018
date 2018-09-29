@@ -215,14 +215,17 @@ int main() {
 
     // set up the 3pi
     initialize();
-
+	unsigned int position = read_line(sensors, IR_EMITTERS_ON);
+	unsigned int pos_anterior = position;
+	int aceleracion = 10;
     // This is the "main loop" - it will run forever.
     while (1) {
         // Get the position of the line.  Note that we *must* provide
         // the "sensors" argument to read_line() here, even though we
         // are not interested in the individual sensor readings.
-        unsigned int position = read_line(sensors, IR_EMITTERS_ON);
-
+        position = read_line(sensors, IR_EMITTERS_ON);
+		if (abs(position-pos_anterior)<500) aceleracion += 0.5;
+		else aceleracion = 10;
         if (position == 0 || position == 4000) {
             // We are far to the right of the line: turn left.
 
@@ -230,14 +233,14 @@ int main() {
             // to do a sharp turn to the left.  Note that the maximum
             // value of either motor speed is 255, so we are driving
             // it at just about 40% of the max.
-            set_motors(80, 80);
+            set_motors(100*(aceleracion/10), 100*(aceleracion/10));
         } else if (position < 2000) {
             // We are somewhat close to being centered on the line:
             // drive straight.
-            set_motors(70, 0);
+            set_motors(90*(aceleracion/10), 0);
         } else {
             // We are far to the left of the line: turn right.
-            set_motors(0, 70);
+            set_motors(0, 90*(aceleracion/10));
         }
     }
 }
