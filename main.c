@@ -123,6 +123,7 @@ void show_calibration_values(){
 		lcd_goto_xy(0,1);
 		delay_ms(100);
 	}
+	wait_for_button_release(BUTTON_B);
 
 			// Display maximum
 	unsigned int* minimum = get_line_sensors_calibrated_minimum_on();
@@ -133,6 +134,7 @@ void show_calibration_values(){
 		lcd_goto_xy(0,1);
 		delay_ms(100);
 	}
+		wait_for_button_release(BUTTON_B);
 }
 
 // Initializes the 3pi, displays a welcome message, calibrates, and
