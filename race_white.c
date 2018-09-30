@@ -11,8 +11,8 @@ static const int max = 140;
 static int power_difference, derivative, proportional;
 static unsigned int position;
 
-void race_white_mode_resume(){
-  set_motors(0, 0);
+void race_white_mode_resume() {
+    set_motors(0, 0);
 }
 
 /**
@@ -34,7 +34,7 @@ void race_white_mode_loop() {
     derivative = proportional - last_proportional;
     integral += proportional;
     last_proportional = proportional;
-    power_difference = proportional *1/8 + integral / 10000 + derivative * 25/10;
+    power_difference = proportional * 1 / 8 + integral / 10000 + derivative * 25 / 10;
 
     if (power_difference > max) power_difference = max;
     if (power_difference < -max) power_difference = -max;
